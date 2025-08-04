@@ -1,0 +1,8 @@
+pandas
+sqlalchemy
+mysql-connector-python
+google-cloud-bigquery
+python-dotenv
+pytest
+pyarrow
+pandas-gbq
