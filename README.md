@@ -31,7 +31,7 @@ This project simulates a real-world healthcare analytics pipeline designed to pr
 
 ## 🗂️ Project Structure
 
-'''
+```
 healthcare_rcm_project/
 │
 ├── config/                    # Database and GCP credential configurations
@@ -51,7 +51,7 @@ healthcare_rcm_project/
 ├── requirements.txt           # Project dependencies
 ├── main.py                    # Main pipeline orchestrator
 └── README.md
-'''
+```
 
 ## ⚙️ Pipeline Flow (Medallion Architecture)
 
@@ -122,16 +122,20 @@ healthcare_rcm_project/
 
 ## 📈 Dashboards & Visualizations
 
-*(Space for screenshots of Looker Studio dashboards, charts, or other visualizations)*
+### Fact Transactions Looker
+![Fact Transactions Looker](assets/fact_transactions_looker.png)
 
-### RCM KPI Overview
-![RCM KPI Overview](placeholder.png)
+### Revenue by Hospital Looker
+![Revenue by Hospital Looker](assets/Revenue_by_hospital_looker.png)
 
-### Data Quality Monitoring
-![Data Quality Monitoring](placeholder.png)
+### Revenue by Hospital Table
+![Revenue by Hospital](assets/Revenue_by_Hospital.png)
 
-### Revenue Trends
-![Revenue Trends](placeholder.png)
+### Unique Patient Count Table
+![Unique Patient Count](assets/Unique_patient_Count.png)
+
+### Unique Patient Counts Looker
+![Unique Patient Counts Looker](assets/Unique_patient_counts_looker.png)
 
 
 ## 🔒 Secrets & Environment Management
@@ -139,7 +143,3 @@ healthcare_rcm_project/
 All credentials (MySQL, GCP) are managed securely using a `.env` file. The `.env.example` file serves as a template.
 
 **Important:** Do not commit the `.env` file to version control.
-
-## 📬 Contact
-
-For deployment support, customization, or questions, feel free to reach out.
