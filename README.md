@@ -39,36 +39,16 @@ healthcare_rcm_project/
 ├───requirements.txt
 ├───.git/
 ├───assets/
-│   ├───fact_transactions_looker.png
-│   ├───Revenue_by_hospital_looker.png
-│   ├───Revenue_by_Hospital.png
-│   ├───Unique_patient_Count.png
-│   └───Unique_patient_counts_looker.png
+│   ├───...
 ├───config/
 │   ├───db_config.py
 ├───data/
-│   ├───raw/
-│   │   ├───claims/
-│   │   │   ├───hospital1_claim_data.csv
-│   │   │   └───hospital2_claim_data.csv
-│   │   ├───hospital-a/
-│   │   │   ├───ddl.sql
-│   │   │   ├───departments.csv
-│   │   │   ├───encounters.csv
-│   │   │   ├───patients.csv
-│   │   │   ├───providers.csv
-│   │   │   └───transactions.csv
-│   │   ├───hospital-b/
-│   │   │   ├───ddl.sql
-│   │   │   ├───departments.csv
-│   │   │   ├───encounters.csv
-│   │   │   ├───patients.csv
-│   │   │   ├───providers.csv
-│   │   │   └───transactions.csv
-│   │   └───reference/
-│   │       └───cptcodes.csv
+│   ├───bronze/...
+│   ├───silver/...
+│   ├───gold/...
+│   ├───raw/...
 ├───docs/
-│   └───Healthcare-Revenue-Cycle-Management-sai.pptx
+│   └───...
 ├───src/
 │   ├───analytics/
 │   │   ├───rcm_analytics.py
