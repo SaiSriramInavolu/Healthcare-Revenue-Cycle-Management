@@ -12,7 +12,6 @@ class Transformer:
         df = df.copy()
         df.columns = df.columns.str.lower()
 
-        # Rename columns to match schema
         df = df.rename(columns={
             "firstname": "first_name",
             "lastname": "last_name",
@@ -36,7 +35,6 @@ class Transformer:
 
         df = df.drop_duplicates(subset=["unified_patient_id"])
 
-        # Drop unnecessary columns
         cols_to_drop = ['id', 'f_name', 'l_name', 'm_name', 'email', 'email_valid']
         df = df.drop(columns=[col for col in cols_to_drop if col in df.columns])
 
@@ -53,11 +51,9 @@ class Transformer:
         df = df.copy()
         cpt_df = cpt_df.copy()
 
-        # Standardize column names
         df.columns = df.columns.str.lower()
         cpt_df.columns = cpt_df.columns.str.lower()
 
-        # Ensure procedurecode exists and is of type string
         if 'procedurecode' in df.columns:
             df['procedurecode'] = df['procedurecode'].astype(str)
         else:
@@ -67,7 +63,6 @@ class Transformer:
         else:
             cpt_df['procedurecode'] = 'Unknown'
 
-        # Rename CPT columns to avoid conflicts
         if 'description' in cpt_df.columns:
             cpt_df = cpt_df.rename(columns={'description': 'cpt_description'})
         else:
@@ -77,23 +72,19 @@ class Transformer:
         else:
             cpt_df['cpt_category'] = ''
 
-        # Merge CPT metadata
         df = df.merge(
             cpt_df[['procedurecode', 'cpt_description', 'cpt_category']],
             how='left',
             on='procedurecode'
         )
 
-        # Drop cpt_description and cpt_category as they are not part of FACT_TRANSACTIONS schema
         df = df.drop(columns=['cpt_description', 'cpt_category'], errors='ignore')
 
-        # Handle date columns
         if "transaction_date" not in df.columns and "transactiondate" in df.columns:
             df.rename(columns={'transactiondate': 'transaction_date'}, inplace=True)
         
         df['transaction_date'] = pd.to_datetime(df.get('transaction_date'), errors='coerce')
 
-        # Type casting and filling missing values
         if 'amount' not in df.columns:
             df['amount'] = 0
         df['amount'] = pd.to_numeric(df['amount'], errors='coerce').fillna(0)
@@ -101,7 +92,6 @@ class Transformer:
             df['paidamount'] = 0
         df['paidamount'] = pd.to_numeric(df['paidamount'], errors='coerce').fillna(0)
 
-        # Create unified_patient_id
         if 'patientid' in df.columns and 'source_file' in df.columns:
             df['unified_patient_id'] = df['patientid'].astype(str) + '_' + df['source_file'].astype(str)
         else:
@@ -114,11 +104,9 @@ class Transformer:
         df = df.copy()
         cpt_df = cpt_df.copy()
 
-        # Standardize column names
         df.columns = df.columns.str.lower()
         cpt_df.columns = cpt_df.columns.str.lower()
 
-        # Ensure procedurecode exists and is of type string
         if 'procedurecode' in df.columns:
             df['procedurecode'] = df['procedurecode'].astype(str)
         else:
@@ -128,7 +116,6 @@ class Transformer:
         else:
             cpt_df['procedurecode'] = 'Unknown'
 
-        # Rename CPT columns to avoid conflicts
         if 'description' in cpt_df.columns:
             cpt_df = cpt_df.rename(columns={'description': 'cpt_description'})
         else:
@@ -138,20 +125,17 @@ class Transformer:
         else:
             cpt_df['cpt_category'] = ''
 
-        # Merge CPT metadata
         df = df.merge(
             cpt_df[['procedurecode', 'cpt_description', 'cpt_category']],
             how='left',
             on='procedurecode'
         )
 
-        # Handle date columns
         if 'claim_date' not in df.columns and 'claimdate' in df.columns:
             df.rename(columns={'claimdate': 'claim_date'}, inplace=True)
         
         df['claim_date'] = pd.to_datetime(df.get('claim_date'), errors='coerce')
 
-        # Type casting and filling missing values
         if 'amountclaimed' not in df.columns:
             df['amountclaimed'] = 0
         df['amountclaimed'] = pd.to_numeric(df['amountclaimed'], errors='coerce').fillna(0)
@@ -159,7 +143,6 @@ class Transformer:
             df['amountapproved'] = 0
         df['amountapproved'] = pd.to_numeric(df['amountapproved'], errors='coerce').fillna(0)
 
-        # Create unified_patient_id
         if 'patientid' in df.columns and 'source_file' in df.columns:
             df['unified_patient_id'] = df['patientid'].astype(str) + '_' + df['source_file'].astype(str)
         else:

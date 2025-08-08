@@ -12,7 +12,6 @@ class DimensionalModel:
         for col in schema:
             if col not in df.columns:
                 self.logger.warning(f"Missing column '{col}' in {table_name}. Will be added with default values.")
-                # Add column with default value based on expected type
                 if 'date' in col.lower() or 'dob' in col.lower():
                     df[col] = pd.NaT
                 elif 'amount' in col.lower() or 'age' in col.lower() or 'id' in col.lower():
@@ -20,7 +19,7 @@ class DimensionalModel:
                 elif 'valid' in col.lower() or 'is_' in col.lower():
                     df[col] = False
                 else:
-                    df[col] = '' # Changed from 'Unknown' to empty string
+                    df[col] = ''
         return df
 
     def scd_patient(self, new_patient_df, old_patient_df=None):
@@ -33,18 +32,15 @@ class DimensionalModel:
             new_patient_df['is_current'] = True
             return new_patient_df[DIM_PATIENTS + ['patient_key', 'effective_date', 'end_date', 'is_current']]
 
-        # Identify new and changed patients
         merged_df = pd.merge(new_patient_df, old_patient_df[old_patient_df['is_current']], on='unified_patient_id', how='left', indicator=True, suffixes=('', '_old'))
         
         new_patients = merged_df[merged_df['_merge'] == 'left_only']
         existing_patients = merged_df[merged_df['_merge'] == 'both']
 
-        # Handle new patients
         new_patients['effective_date'] = datetime.now()
         new_patients['end_date'] = pd.NaT
         new_patients['is_current'] = True
 
-        # Handle changed patients
         changed_patients = existing_patients[
             (existing_patients['first_name'] != existing_patients['first_name_old']) | 
             (existing_patients['last_name'] != existing_patients['last_name_old']) | 
@@ -52,16 +48,13 @@ class DimensionalModel:
         ].copy()
 
         if not changed_patients.empty:
-            # Expire old records
             old_patient_df.loc[old_patient_df['unified_patient_id'].isin(changed_patients['unified_patient_id']) & old_patient_df['is_current'], 'end_date'] = datetime.now()
             old_patient_df.loc[old_patient_df['unified_patient_id'].isin(changed_patients['unified_patient_id']) & old_patient_df['is_current'], 'is_current'] = False
 
-            # Add new records for changed patients
             changed_patients['effective_date'] = datetime.now()
             changed_patients['end_date'] = pd.NaT
             changed_patients['is_current'] = True
             
-            # Combine all parts
             final_df = pd.concat([old_patient_df, new_patients, changed_patients], ignore_index=True)
         else:
             final_df = pd.concat([old_patient_df, new_patients], ignore_index=True)
@@ -71,13 +64,11 @@ class DimensionalModel:
     def run(self, clean_data: dict) -> dict:
         self.logger.info("Building dimensional model...")
 
-        # Create dimension tables
         dim_patients_scd = self.scd_patient(clean_data['patients'])
         dim_providers = self._create_dim_providers(clean_data['providers'])
         dim_procedures = self._create_dim_procedures(clean_data['cptcodes'])
         dim_date = self._create_dim_date(clean_data['transactions'], clean_data['claims'])
 
-        # Create fact tables
         fact_transactions = self._create_fact_transactions(clean_data['transactions'], dim_patients_scd, dim_providers, dim_procedures, dim_date)
         fact_claims = self._create_fact_claims(clean_data['claims'], dim_patients_scd, dim_providers, dim_procedures, dim_date)
 
@@ -91,7 +82,6 @@ class DimensionalModel:
         }
 
     def _create_dim_patients(self, patients_df):
-        # This is a simplified version. A full SCD Type 2 implementation would be more complex.
         patients_df['patient_key'] = patients_df['unified_patient_id'].astype(str).astype('category').cat.codes
         return patients_df
 
@@ -105,7 +95,6 @@ class DimensionalModel:
         return cpt_df
 
     def _create_dim_date(self, transactions_df, claims_df):
-        # Combine dates from both dataframes
         all_dates = pd.concat([
             pd.to_datetime(transactions_df['transaction_date'], errors='coerce'),
             pd.to_datetime(claims_df['claim_date'], errors='coerce')
@@ -124,12 +113,10 @@ class DimensionalModel:
     def _create_fact_transactions(self, transactions_df, dim_patients, dim_providers, dim_procedures, dim_date):
         fact_transactions = transactions_df.copy()
 
-        # Ensure join keys are string type
         fact_transactions['unified_patient_id'] = fact_transactions['unified_patient_id'].astype(str)
         fact_transactions['providerid'] = fact_transactions['providerid'].astype(str)
         fact_transactions['procedurecode'] = fact_transactions['procedurecode'].astype(str)
 
-        # Add surrogate keys
         fact_transactions = pd.merge(fact_transactions, dim_patients[['unified_patient_id', 'patient_key']], on='unified_patient_id', how='left')
         fact_transactions = pd.merge(fact_transactions, dim_providers[['providerid', 'provider_key']], on='providerid', how='left')
         fact_transactions = pd.merge(fact_transactions, dim_procedures[['procedurecode', 'procedure_key']], on='procedurecode', how='left')
@@ -141,12 +128,10 @@ class DimensionalModel:
     def _create_fact_claims(self, claims_df, dim_patients, dim_providers, dim_procedures, dim_date):
         fact_claims = claims_df.copy()
 
-        # Ensure join keys are string type
         fact_claims['unified_patient_id'] = fact_claims['unified_patient_id'].astype(str)
         fact_claims['providerid'] = fact_claims['providerid'].astype(str)
         fact_claims['procedurecode'] = fact_claims['procedurecode'].astype(str)
 
-        # Add surrogate keys
         fact_claims = pd.merge(fact_claims, dim_patients[['unified_patient_id', 'patient_key']], on='unified_patient_id', how='left')
         fact_claims = pd.merge(fact_claims, dim_providers[['providerid', 'provider_key']], on='providerid', how='left')
         fact_claims = pd.merge(fact_claims, dim_procedures[['procedurecode', 'procedure_key']], on='procedurecode', how='left')

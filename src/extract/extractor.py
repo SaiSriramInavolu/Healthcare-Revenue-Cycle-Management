@@ -1,4 +1,3 @@
-# src/extract/extractor.py
 import pandas as pd
 import os
 from sqlalchemy import create_engine
@@ -63,8 +62,7 @@ class Extractor:
                       "procedure code category": "procedure_code_category",
                       "procedure code descriptions": "procedure_description"
                     })
-                # Create a fake numeric code for merge using index (optional)
-               df["procedurecode"] = df.index  # Only if real codes are missing
+               df["procedurecode"] = df.index
                return df
             except Exception as e:
                    logger.warning("Failed to load CPT codes: " + str(e))

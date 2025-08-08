@@ -1,171 +1,145 @@
-Healthcare Revenue Cycle Management (RCM) – End-to-End Data Engineering Project
-🔍 Overview
-This project simulates a real-world healthcare analytics pipeline designed to process large-scale patient, claims, and transaction data from multiple hospital systems. It follows best practices in modern data engineering, incorporating Medallion architecture (Bronze, Silver, Gold), historical tracking via Slowly Changing Dimension (SCD) Type 2, and a robust BigQuery data warehouse for business intelligence and analytics.
+# Healthcare Revenue Cycle Management (RCM) - End-to-End Data Engineering Project
 
-🎯 Project Objectives
-Consolidate data from multiple hospital sources (MySQL, CSV)
+## 🔍 Overview
 
-Clean, standardize, and validate all incoming data
+This project simulates a real-world healthcare analytics pipeline designed to process large-scale patient, claims, and transaction data from multiple hospital systems. It follows best practices in modern data engineering, incorporating a Medallion architecture (Bronze, Silver, Gold), historical data tracking with Slowly Changing Dimensions (SCD Type 2), and a robust BigQuery data warehouse for business intelligence and analytics.
 
-Implement SCD Type 2 for historical patient tracking
+## 🎯 Project Objectives
 
-Transform data into dimensional star schema (facts and dimensions)
+-   **Consolidate Data:** Ingest data from multiple hospital sources (MySQL, CSV).
+-   **Data Quality:** Clean, standardize, and validate all incoming data.
+-   **Historical Tracking:** Implement SCD Type 2 for historical patient data tracking.
+-   **Data Modeling:** Transform data into a dimensional star schema (facts and dimensions).
+-   **Data Warehousing:** Load structured datasets into BigQuery with proper partitioning and clustering.
+-   **Metadata Generation:** Generate schema metadata for documentation and auditing.
+-   **Analytics:** Support downstream KPIs and Looker Studio dashboards.
 
-Load structured datasets into BigQuery with proper partitioning/clustering
+## 🛠️ Tech Stack
 
-Generate schema metadata for documentation and auditing
+| Category       | Tools & Technologies                  |
+| -------------- | ------------------------------------- |
+| **Languages**  | Python, SQL                           |
+| **Data Sources**| MySQL, CSV                            |
+| **Data Lakehouse**| Google BigQuery                       |
+| **Libraries**  | pandas, SQLAlchemy, google-cloud-bigquery |
+| **Architecture**| Medallion (Bronze → Silver → Gold)    |
+| **Data Modeling**| Dimensional star schema, SCD Type 2   |
+| **DevOps**     | Git, GitHub                           |
+| **Visualization**| Looker Studio                         |
+| **Logging**    | Custom ETL logging via Python logger  |
+| **Secrets Mgmt**| python-dotenv (.env)                  |
 
-Support downstream KPIs and Looker Studio dashboards
+## 🗂️ Project Structure
 
-🛠️ Tech Stack
-Category	Tools & Technologies
-Languages	Python, SQL
-Data Sources	MySQL (hospital_a, hospital_b), CSV (claims)
-Data Lakehouse	Google BigQuery
-Libraries	pandas, SQLAlchemy, google-cloud-bigquery
-Architecture	Medallion (Bronze → Silver → Gold)
-Data Modeling	Dimensional star schema, SCD Type 2
-DevOps	Git, GitHub
-Visualization	Looker Studio
-Logging	Custom ETL logging via Python logger
-Secrets Mgmt	dotenv (.env)
-
-🗂️ Project Structure
-graphql
-Copy
-Edit
+'''
 healthcare_rcm_project/
 │
-├── config/                    # DB and GCP credential configs
+├── config/                    # Database and GCP credential configurations
 ├── data/
 │   ├── bronze/                # Raw extracted data
-│   ├── silver/                # Cleaned/standardized data
+│   ├── silver/                # Cleaned and standardized data
 │   └── gold/                  # Final dimensional model outputs
 │
 ├── src/
-│   ├── extract/               # MySQL & CSV extractors
-│   ├── transform/             # Data cleaning + standardization
-│   ├── models/                # Star schema & SCD2 modeling
-│   ├── load/                  # BigQuery loader + schema reporter
-│   ├── utils/                 # Logger, schema generator
+│   ├── extract/               # MySQL & CSV data extractors
+│   ├── transform/             # Data cleaning and standardization logic
+│   ├── models/                # Star schema and SCD Type 2 modeling
+│   ├── load/                  # BigQuery loader and schema reporter
+│   └── utils/                 # Helper utilities (Logger, schema generator)
 │
-├── sql/                       # BigQuery analytics SQLs
-├── .env.example               # Secrets template
-├── requirements.txt
-├── main.py                    # Pipeline orchestrator
+├── .env.example               # Template for environment variables
+├── requirements.txt           # Project dependencies
+├── main.py                    # Main pipeline orchestrator
 └── README.md
-⚙️ Pipeline Flow (Medallion Architecture)
-Bronze Layer:
-Extracts raw data from:
+'''
 
-MySQL: hospital_a and hospital_b
+## ⚙️ Pipeline Flow (Medallion Architecture)
 
-CSV: claims.csv, cptcodes.csv
+1.  **Bronze Layer:**
+    -   Extracts raw data from MySQL databases (`hospital_a`, `hospital_b`) and CSV files (`claims.csv`, `cptcodes.csv`).
+    -   Merges data sources and stores them as CSVs in the `data/bronze/` directory.
 
-Merges data sources and stores as CSVs under /data/bronze/
+2.  **Silver Layer:**
+    -   Applies data transformation and quality checks:
+        -   Gender standardization and email validation.
+        -   Date parsing, deduplication, and phone number normalization.
+        -   CPT code enrichment through joins.
+        -   Handling of missing values with appropriate fallbacks.
+    -   Saves the cleaned data as CSVs in the `data/silver/` directory.
 
-Silver Layer:
-Applies data transformation and quality steps:
+3.  **Gold Layer:**
+    -   Converts the cleaned data into a star schema:
+        -   **Dimension tables:** `dim_patients`, `dim_procedures`, `dim_providers`, `dim_departments`, `dim_date`
+        -   **Fact tables:** `fact_transactions`, `fact_claims`
+        -   **SCD Type 2:** `dim_patients_scd` for historical patient tracking.
+    -   Automatically generates a schema summary (`schema_summary.csv`).
+    -   Saves the final datasets in the `data/gold/` directory.
 
-Gender standardization, email validation
+4.  **Load to BigQuery:**
+    -   All Silver and Gold layer tables are loaded into Google BigQuery.
+    -   Applies partitioning (e.g., by `transaction_date`, `claim_date`) and clustering (e.g., by `unified_patient_id`) for query optimization.
+    -   Creates distinct datasets for `bronze`, `silver`, and `gold` layers.
 
-Date parsing, deduplication, phone normalization
+## ✅ Key Features
 
-CPT code enrichment via joins
+-   **End-to-End ETL:** A complete pipeline from raw data to a structured data warehouse.
+-   **Medallion Architecture:** Follows industry best practices for data lakehouse design.
+-   **Robust Transformations:** Includes data validation, standardization, and error handling.
+-   **SCD Type 2:** Implements historical tracking for patient dimensions using surrogate keys.
+-   **Dimensional Modeling:** Creates a clean star schema for easy analytics and reporting.
+-   **BigQuery Integration:** Optimized for performance with partitioning and clustering.
+-   **Automated Metadata:** Generates a schema summary for data governance.
+-   **Business-Ready Metrics:** Enables calculation of key RCM metrics.
 
-Missing column handling with fallbacks
+## 📊 Sample KPIs Enabled
 
-Saved as cleaned CSVs under /data/silver/
+| Metric Category | Examples                                           |
+| --------------- | -------------------------------------------------- |
+| **Revenue**     | Total revenue, monthly revenue trends              |
+| **Claims**      | Approval/denial rates, claim volume, processing time |
+| **Patients**    | Demographics, insurance coverage, patient volume   |
+| **Finance**     | Days in A/R, collection efficiency, write-offs     |
+| **Advanced**    | Patient Lifetime Value, Procedure Profitability    |
 
-Gold Layer:
-Converts cleaned data into star schema:
+## 🚀 Getting Started
 
-Dimension tables: dim_patients, dim_procedures, dim_providers, dim_departments, dim_date
+1.  **Install Dependencies:**
+    '''bash
+    pip install -r requirements.txt
+    '''
 
-Fact tables: fact_transactions, fact_claims
+2.  **Configure Environment:**
+    -   Copy the `.env.example` file to `.env`:
+        '''bash
+        cp .env.example .env
+        '''
+    -   Fill in your MySQL and Google Cloud Platform credentials in the `.env` file.
 
-SCD Type 2: dim_patients_scd
+3.  **Run the ETL Pipeline:**
+    '''bash
+    python main.py
+    '''
 
-Schema summary auto-generated (schema_summary.csv)
+## 📈 Dashboards & Visualizations
 
-Output saved under /data/gold/
+*(Space for screenshots of Looker Studio dashboards, charts, or other visualizations)*
 
-Load to BigQuery:
+### RCM KPI Overview
+![RCM KPI Overview](placeholder.png)
 
-All Silver and Gold tables are loaded into BigQuery
+### Data Quality Monitoring
+![Data Quality Monitoring](placeholder.png)
 
-Partitioning (e.g. by transaction_date, claim_date) and clustering (e.g. by unified_patient_id) applied
+### Revenue Trends
+![Revenue Trends](placeholder.png)
 
-Datasets created:
 
-bronze (optional upload)
+## 🔒 Secrets & Environment Management
 
-silver (cleaned layer)
+All credentials (MySQL, GCP) are managed securely using a `.env` file. The `.env.example` file serves as a template.
 
-gold (fact and dimensional tables)
+**Important:** Do not commit the `.env` file to version control.
 
-✅ Key Features
-✔️ End-to-end ETL pipeline with Medallion architecture
+## 📬 Contact
 
-✔️ Raw-to-Gold layer implementation using Python and Pandas
-
-✔️ Robust data transformation with fallbacks, logging, and standardization
-
-✔️ SCD Type 2 for dim_patients using surrogate keys
-
-✔️ Dimensional modeling: fact and dimension tables for analytics
-
-✔️ BigQuery integration with partitioning and clustering
-
-✔️ Schema summary generated post-load (schema_summary.csv)
-
-✔️ Business-ready metrics: Revenue, AR, Denial rates, Procedure performance
-
-✔️ Looker Studio Dashboards (RCM KPIs, Data Quality, SCD Audits)
-
-📊 Sample KPIs Enabled
-Metric Category	Examples
-Revenue	Total revenue, monthly revenue trends
-Claims	Approval/denial rates, claim volume, average processing duration
-Patients	Demographics, insurance coverage, patient volume
-Finance	Days in A/R, collection efficiency, write-offs
-Advanced	Patient Lifetime Value, Procedure Profitability, Provider Performance
-
-🔒 Secrets & Environment Setup
-All credentials (MySQL, GCP) are stored securely in a .env file
-
-Use the .env.example file as a template
-
-DO NOT commit the real .env file to GitHub
-
-🚀 Getting Started
-bash
-Copy
-Edit
-# 1. Install dependencies
-pip install -r requirements.txt
-
-# 2. Configure environment
-cp .env.example .env
-# Fill in MySQL and GCP credentials
-
-# 3. Run the ETL pipeline
-python main.py
-📎 Outputs
-Layer	Sample Outputs
-Bronze	data/bronze/patients.csv, claims.csv, ...
-Silver	data/silver/patients_cleaned.csv, transactions_cleaned.csv, ...
-Gold	data/gold/dim_patients.csv, fact_claims.csv, ...
-Metadata	data/schema_summary.csv for table/column overview
-
-📈 Dashboards (Looker Studio)
-RCM KPI Overview
-
-SCD Type 2 Audit Report
-
-Data Quality Monitoring
-
-Revenue Trends & Provider Insights
-
-📬 Contact
 For deployment support, customization, or questions, feel free to reach out.

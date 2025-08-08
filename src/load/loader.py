@@ -1,5 +1,3 @@
-# src/load/loader.py
-
 import logging
 import pandas as pd
 from google.cloud import bigquery
@@ -50,7 +48,6 @@ class Loader:
         if cluster_fields:
             job_config.clustering_fields = cluster_fields
 
-        # Explicitly define schema for problematic columns
         if table_name == "fact_transactions":
             job_config.schema = [
                 bigquery.SchemaField("transaction_date", "TIMESTAMP"),
