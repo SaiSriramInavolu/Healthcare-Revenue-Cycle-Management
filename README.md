@@ -33,24 +33,59 @@ This project simulates a real-world healthcare analytics pipeline designed to pr
 
 ```
 healthcare_rcm_project/
-│
-├── config/                    # Database and GCP credential configurations
-├── data/
-│   ├── bronze/                # Raw extracted data
-│   ├── silver/                # Cleaned and standardized data
-│   └── gold/                  # Final dimensional model outputs
-│
-├── src/
-│   ├── extract/               # MySQL & CSV data extractors
-│   ├── transform/             # Data cleaning and standardization logic
-│   ├── models/                # Star schema and SCD Type 2 modeling
-│   ├── load/                  # BigQuery loader and schema reporter
-│   └── utils/                 # Helper utilities (Logger, schema generator)
-│
-├── .env.example               # Template for environment variables
-├── requirements.txt           # Project dependencies
-├── main.py                    # Main pipeline orchestrator
-└── README.md
+├───.gitignore
+├───main.py
+├───README.md
+├───requirements.txt
+├───.git/
+├───assets/
+│   ├───fact_transactions_looker.png
+│   ├───Revenue_by_hospital_looker.png
+│   ├───Revenue_by_Hospital.png
+│   ├───Unique_patient_Count.png
+│   └───Unique_patient_counts_looker.png
+├───config/
+│   ├───db_config.py
+├───data/
+│   ├───raw/
+│   │   ├───claims/
+│   │   │   ├───hospital1_claim_data.csv
+│   │   │   └───hospital2_claim_data.csv
+│   │   ├───hospital-a/
+│   │   │   ├───ddl.sql
+│   │   │   ├───departments.csv
+│   │   │   ├───encounters.csv
+│   │   │   ├───patients.csv
+│   │   │   ├───providers.csv
+│   │   │   └───transactions.csv
+│   │   ├───hospital-b/
+│   │   │   ├───ddl.sql
+│   │   │   ├───departments.csv
+│   │   │   ├───encounters.csv
+│   │   │   ├───patients.csv
+│   │   │   ├───providers.csv
+│   │   │   └───transactions.csv
+│   │   └───reference/
+│   │       └───cptcodes.csv
+├───docs/
+│   └───Healthcare-Revenue-Cycle-Management-sai.pptx
+├───src/
+│   ├───analytics/
+│   │   ├───rcm_analytics.py
+│   ├───extract/
+│   │   ├───extractor.py
+│   ├───load/
+│   │   ├───loader.py
+│   ├───models/
+│   │   ├───dimensional_model.py
+│   │   ├───schema_definitions.py
+│   ├───transform/
+│   │   ├───transformer.py
+│   └───utils/
+│       ├───generate_schema_summary.py
+│       ├───helpers.py
+│       ├───logger.py
+│       └───update_bigquery.py
 ```
 
 ## ⚙️ Pipeline Flow (Medallion Architecture)
